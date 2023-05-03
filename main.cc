@@ -23,7 +23,7 @@ int main() {
 
   do {
     std::cout
-        << "Elija una opción:\n [0] Salir\n[1] Insertar clave\n[2] Buscar "
+        << "Elija una opción:\n[0] Salir\n[1] Insertar clave\n[2] Buscar "
            "clave\n[3] Mostrar árbol inorden\n";
     std::cin >> opcion;
     switch (opcion) {
@@ -34,8 +34,8 @@ int main() {
         std::cout << "Introduzca el valor de la clave: ";
         std::cin >> clave;
         arbol->Insertar(clave);
-        std::cout << "Árbol resultante:" << std::endl;
-        std::cout << arbol << std::endl;
+        std::cout << "Árbol vacío\nNivel 0: [.]\nInsertar: " << clave << std::endl;
+        std::cout << *arbol << std::endl;
         break;
 
       case 2:  // Búsqueda
