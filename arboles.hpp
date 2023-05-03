@@ -19,15 +19,15 @@ class AB {
   // Métodos virtuales
   virtual bool Insertar(const Key& k) = 0;
   virtual bool Buscar(const Key& k) const = 0;
-  
+
   // Getter
   NodoB<Key>* GetRaiz() { return raiz_; }
-  NodoB<Key>* &GetRaiz2() { return raiz_; }
+  NodoB<Key>* &GetRaiz2() { return raiz_; } 
 
   // Método y sobrecarga de operador << para mostrar por pantalla el árbol
   void Inorden(NodoB<Key>* nodo) const;
 
-  template<class key>
+  template <class key>
   friend std::ostream& operator<<(std::ostream& os, AB<key>& arbol);
 
  protected:
@@ -38,23 +38,25 @@ class AB {
 };
 
 // Mostrar árbol mediante inorden
-template<class Key>
+template <class Key>
 void AB<Key>::Inorden(NodoB<Key>* nodo) const {
-  if (nodo == NULL) return;
+  if (nodo == NULL)
+    return;
   else {
     Inorden(nodo->GetIzquierdo());
-    std::cout << nodo->GetDato() << " - " << std::endl;
-    Inorden(nodo->GetDerecho()); 
+    std::cout << nodo->GetDato() << " - ";
+    Inorden(nodo->GetDerecho());
   }
 }
 
 // Mostrar árbol mediante recorrido por niveles
-template<class Key>
+template <class Key>
 std::ostream& operator<<(std::ostream& os, AB<Key>& arbol) {
   std::queue<std::pair<NodoB<Key>*, int>> cola;
   NodoB<Key>* nodo;
   int nivel, nivel_actual{0};
   // Q.insertar(Raiz, 0);
+  os << "\nNivel " << nivel_actual << ": ";
   cola.push(std::make_pair(arbol.GetRaiz(), 0));
   while (!cola.empty()) {
     std::pair<NodoB<Key>*, int> par;
@@ -64,13 +66,12 @@ std::ostream& operator<<(std::ostream& os, AB<Key>& arbol) {
     nodo = par.first;
     nivel = par.second;
     if (nivel > nivel_actual) {
-      nivel_actual = nivel; // Incremento de nivel
+      nivel_actual = nivel;  // Incremento de nivel
+      os << "\nNivel " << nivel_actual << ": ";
     }
     if (nodo != NULL) {
       // Procesar(nodo);
-      os << "\nNivel " << nivel_actual << ": [" << nodo << "]" ;
-
-      os << "[" << nodo->GetDato() << "] ";
+      os << "[" << nodo->GetDato() << "]";
       // Q.insertar(nodo->izdo, nivel+1);
       cola.push(std::make_pair(nodo->GetIzquierdo(), nivel + 1));
       // Q.insertar(nodo->dcho, nivel+1);
@@ -82,12 +83,12 @@ std::ostream& operator<<(std::ostream& os, AB<Key>& arbol) {
   return os;
 }
 
-template<class Key>
+template <class Key>
 void AB<Key>::Podar_(NodoB<Key>* nodo) {
   if (nodo == NULL) return;
-  Podar_(nodo->GetIzquierdo()); // Podar subarbol izquierdo
-  Podar_(nodo->GetDerecho());   // Podar subarbol derecho
-  delete nodo;                  // Eliminar nodo
+  Podar_(nodo->GetIzquierdo());  // Podar subarbol izquierdo
+  Podar_(nodo->GetDerecho());    // Podar subarbol derecho
+  delete nodo;                   // Eliminar nodo
   nodo = NULL;
 }
 
@@ -99,36 +100,35 @@ class ABB : public AB<Key> {
  public:
   // Constructor
   ABB() : AB<Key>() {}
-  
+
   // Métodos heredados de AB
   bool Insertar(const Key& k);
   virtual bool Buscar(const Key& k) const;
- 
+
  private:
-  NodoB<Key>* BuscarRama_(NodoB<Key>* nodo, const Key& clave_dada);
-  void InsertarRama_(NodoB<Key>* nodo, const Key& clave_dada);
+  // NodoB<Key>* BuscarRama_(NodoB<Key>* nodo, const Key& clave_dada);
+  void InsertarRama_(NodoB<Key>*& nodo, const Key& clave_dada);
 };
 
 template <class Key>
-NodoB<Key>* ABB<Key>::BuscarRama_(NodoB<Key>* nodo, const Key& clave_dada) {
-  if (nodo == NULL) return NULL; // No se ha encontrado el nodo
-  if (clave_dada == nodo->GetDato()) return nodo; // Se ha encontrado el nodo
-  if (clave_dada < nodo->GetDato()) return BuscarRama_(nodo->GetIzquierdo(), clave_dada);
+NodoB<Key>* BuscarRama_(NodoB<Key>* nodo, const Key& clave_dada) {
+  if (nodo == NULL) return NULL;  // No se ha encontrado el nodo
+  if (clave_dada == nodo->GetDato()) return nodo;  // Se ha encontrado el nodo
+  if (clave_dada < nodo->GetDato())
+    return BuscarRama_(nodo->GetIzquierdo(), clave_dada);
   return BuscarRama_(nodo->GetDerecho(), clave_dada);
-
 }
 
 template <class Key>
-void ABB<Key>::InsertarRama_(NodoB<Key>* nodo, const Key& clave_dada) {
+void ABB<Key>::InsertarRama_(NodoB<Key>*& nodo, const Key& clave_dada) {
   if (nodo == NULL) {
     nodo = new NodoB<Key>(clave_dada);
   } else if (clave_dada < nodo->GetDato()) {
     InsertarRama_(nodo->GetIzquierdo(), clave_dada);
   } else {
-    InsertarRama_(nodo->GetIzquierdo(), clave_dada);
+    InsertarRama_(nodo->GetDerecho(), clave_dada);
   }
 }
-
 
 template <class Key>
 bool ABB<Key>::Insertar(const Key& k) {
@@ -139,10 +139,8 @@ bool ABB<Key>::Insertar(const Key& k) {
 
 template <class Key>
 bool ABB<Key>::Buscar(const Key& k) const {
-  /*
-  if (BuscarRama_(AB<Key>::GetRaiz(), k) == NULL) return false;
+  if (BuscarRama_(this->raiz_, k) == NULL) return false;
   return true;
-  */
 }
 
 // ========================================================
@@ -154,35 +152,21 @@ class AVL : public ABB<Key> {
   // Constructor
   AVL() : ABB<Key>() {}
   bool Insertar(const Key& k);
- 
+
  private:
-  void InsertaBal(NodoAVL<Key>* &nodo, NodoAVL<Key>* nuevo, bool& crece);
-  void InsertReBalanceaIzda(NodoAVL<Key>* &nodo, bool& crece);
-  void InsertReBalanceaDcha(NodoAVL<Key>* &nodo, bool& crece);
-  void RotacionII(NodoAVL<Key>* &nodo);
-  void RotacionDD(NodoAVL<Key>* &nodo);
-  void RotacionID(NodoAVL<Key>* &nodo);
-  void RotacionDI(NodoAVL<Key>* &nodo);
+  void InsertaBal(NodoAVL<Key>*& nodo, NodoAVL<Key>* nuevo, bool& crece);
+  void InsertReBalanceaIzda(NodoAVL<Key>*& nodo, bool& crece);
+  void InsertReBalanceaDcha(NodoAVL<Key>*& nodo, bool& crece);
+  void RotacionII(NodoAVL<Key>*& nodo);
+  void RotacionDD(NodoAVL<Key>*& nodo);
+  void RotacionID(NodoAVL<Key>*& nodo);
+  void RotacionDI(NodoAVL<Key>*& nodo);
 };
 
-template<class Key>
-void AVL<Key>::InsertaBal(NodoAVL<Key>* &nodo, NodoAVL<Key>* nuevo, bool& crece) {
-  if (nodo == NULL) {
-    nodo = nuevo;
-    crece = true;
-  } else if (nuevo->GetDato() < nodo->GetDato()) {
-    InsertaBal(reinterpret_cast<NodoAVL<Key>*&> (nodo->GetIzquierdo()), nuevo, crece);
-    if (crece) InsertReBalanceaIzda(nodo, crece);
-  } else {  
-    InsertaBal(reinterpret_cast<NodoAVL<Key>*&> (nodo->GetDerecho()), nuevo, crece);
-    if (crece) InsertReBalanceaDcha(nodo, crece);
-  }
-}
-
-template<class Key>
-void AVL<Key>::RotacionII(NodoAVL<Key>* &nodo) {
+template <class Key>
+void AVL<Key>::RotacionII(NodoAVL<Key>*& nodo) {
   // nodoAVL nodo1 = nodo->izdo;
-  NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*> (nodo->GetIzquierdo());
+  NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*>(nodo->GetIzquierdo());
   // nodo->izdo = nodo1->dcho;
   nodo->GetIzquierdo() = nodo1->GetDerecho();
   // nodo1->dcho = nodo;
@@ -192,7 +176,7 @@ void AVL<Key>::RotacionII(NodoAVL<Key>* &nodo) {
     nodo->SetBal(0);
     // nodo1->bal = 0;
     nodo1->SetBal(0);
-  } else { // nodo1-> bal == 0
+  } else {  // nodo1-> bal == 0
     // nodo->bal = 1;
     nodo->SetBal(1);
     // nodo1->bal = -1;
@@ -201,10 +185,10 @@ void AVL<Key>::RotacionII(NodoAVL<Key>* &nodo) {
   nodo = nodo1;
 }
 
-template<class Key>
-void AVL<Key>::RotacionDD(NodoAVL<Key>* &nodo) {
+template <class Key>
+void AVL<Key>::RotacionDD(NodoAVL<Key>*& nodo) {
   // nodoAVL nodo1 = nodo->dcho;
-  NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*> (nodo->GetDerecho());
+  NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*>(nodo->GetDerecho());
   // nodo->dcho = nodo1->izdo;
   nodo->GetDerecho() = nodo1->GetIzquierdo();
   // nodo1->izdo = nodo;
@@ -214,7 +198,7 @@ void AVL<Key>::RotacionDD(NodoAVL<Key>* &nodo) {
     nodo->SetBal(0);
     // nodo1->bal = 0;
     nodo1->SetBal(0);
-  } else { // nodo1->bal == 0
+  } else {  // nodo1->bal == 0
     // nodo->bal = -1;
     nodo->SetBal(-1);
     // nodo1->bal = 1;
@@ -223,18 +207,18 @@ void AVL<Key>::RotacionDD(NodoAVL<Key>* &nodo) {
   nodo = nodo1;
 }
 
-template<class Key>
-void AVL<Key>::RotacionID(NodoAVL<Key>* &nodo) {
+template <class Key>
+void AVL<Key>::RotacionID(NodoAVL<Key>*& nodo) {
   // nodoAVL* nodo1 = nodo->izdo;
-  NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*> (nodo->GetIzquierdo());
+  NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*>(nodo->GetIzquierdo());
   // nodoAVL* nodo2 = nodo1->dcho;
-  NodoAVL<Key>* nodo2 = reinterpret_cast<NodoAVL<Key>*> (nodo1->GetDerecho());
+  NodoAVL<Key>* nodo2 = reinterpret_cast<NodoAVL<Key>*>(nodo1->GetDerecho());
   // nodo->izdo = nodo2->dcho;
-  nodo->GetIzquierdo() = reinterpret_cast<NodoAVL<Key>*> (nodo2->GetDerecho());
+  nodo->GetIzquierdo() = reinterpret_cast<NodoAVL<Key>*>(nodo2->GetDerecho());
   // nodo2->dcho = nodo;
   nodo2->GetDerecho() = nodo;
   // nodo1->dcho = nodo2->izdo;
-  nodo1->GetDerecho() = reinterpret_cast<NodoAVL<Key>*> (nodo2->GetIzquierdo());
+  nodo1->GetDerecho() = reinterpret_cast<NodoAVL<Key>*>(nodo2->GetIzquierdo());
   // nodo2->izdo = nodo1;
   nodo2->GetIzquierdo() = nodo1;
   if (nodo2->GetBal() == -1) {
@@ -256,18 +240,18 @@ void AVL<Key>::RotacionID(NodoAVL<Key>* &nodo) {
   nodo = nodo2;
 }
 
-template<class Key>
-void AVL<Key>::RotacionDI(NodoAVL<Key>* &nodo) {
+template <class Key>
+void AVL<Key>::RotacionDI(NodoAVL<Key>*& nodo) {
   // nodoAVL* nodo1 = nodo->dcho;
-  NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*> (nodo->GetDerecho());
+  NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*>(nodo->GetDerecho());
   // nodoAVL* nodo2 = nodo1->izdo;
-  NodoAVL<Key>* nodo2 = reinterpret_cast<NodoAVL<Key>*> (nodo1->GetIzquierdo());
+  NodoAVL<Key>* nodo2 = reinterpret_cast<NodoAVL<Key>*>(nodo1->GetIzquierdo());
   // nodo->dcho = nodo2->izdo;
-  nodo->GetDerecho() = reinterpret_cast<NodoAVL<Key>*> (nodo2->GetIzquierdo());
+  nodo->GetDerecho() = reinterpret_cast<NodoAVL<Key>*>(nodo2->GetIzquierdo());
   // nodo2->izdo = nodo;
   nodo2->GetIzquierdo() = nodo;
   // nodo1->izdo = nodo2->dcho;
-  nodo1->GetIzquierdo() = reinterpret_cast<NodoAVL<Key>*> (nodo2->GetDerecho());
+  nodo1->GetIzquierdo() = reinterpret_cast<NodoAVL<Key>*>(nodo2->GetDerecho());
   // nodo2->dcho = nodo1;
   nodo2->GetDerecho() = nodo1;
   if (nodo2->GetBal() == 1) {
@@ -290,32 +274,35 @@ void AVL<Key>::RotacionDI(NodoAVL<Key>* &nodo) {
 }
 
 template <class Key>
-void AVL<Key>::InsertReBalanceaIzda(NodoAVL<Key>* &nodo, bool& crece) {
+void AVL<Key>::InsertReBalanceaIzda(NodoAVL<Key>*& nodo, bool& crece) {
   switch (nodo->GetBal()) {
     case -1: {
       nodo->SetBal(0);
       crece = false;
-      break; 
+      break;
     }
-    case  0: {
+    case 0: {
       nodo->SetBal(1);
-      break; 
+      break;
     }
-    case  1: {
-      NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*> (nodo->GetIzquierdo());
+    case 1: {
+      NodoAVL<Key>* nodo1 =
+          reinterpret_cast<NodoAVL<Key>*>(nodo->GetIzquierdo());
       if (nodo1->GetBal() == 1) {
-        #ifdef TRAZA
-          std::cout << "MODO TRAZA" << std::endl;
-          std::cout << *this << std::endl;
-          std::cout << "Rotación II en " << nodo << std::endl; 
-        #endif
+#ifdef TRAZA
+        std::cout << "Desbalanceo:";
+        std::cout << *this << std::endl;
+        std::cout<< "==========================";
+        std::cout << "\nRotación II en [" << *nodo << "]:";
+#endif
         RotacionII(nodo);
       } else {
-        #ifdef TRAZA
-          std::cout << "MODO TRAZA" << std::endl;
-          std::cout << *this << std::endl;
-          std::cout << "Rotación ID en " << nodo << std::endl; 
-        #endif
+#ifdef TRAZA
+        std::cout << "Desbalanceo:";
+        std::cout << *this << std::endl;
+        std::cout<< "==========================";
+        std::cout << "\nRotación ID en [" << *nodo << "]:";
+#endif
         RotacionID(nodo);
       }
       crece = false;
@@ -324,46 +311,68 @@ void AVL<Key>::InsertReBalanceaIzda(NodoAVL<Key>* &nodo, bool& crece) {
 }
 
 template <class Key>
-void AVL<Key>::InsertReBalanceaDcha(NodoAVL<Key>* &nodo, bool& crece) {
+void AVL<Key>::InsertReBalanceaDcha(NodoAVL<Key>*& nodo, bool& crece) {
   switch (nodo->GetBal()) {
-     case  1: {
+    case 1: {
       nodo->SetBal(0);
       crece = false;
-      break; 
-     }
-     case  0: {
+      break;
+    }
+    case 0: {
       nodo->SetBal(-1);
-      break; 
-     }
-     case -1: 
-      NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*> (nodo->GetDerecho());
+      break;
+    }
+    case -1:
+      NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*>(nodo->GetDerecho());
       if (nodo1->GetBal() == -1) {
-        #ifdef TRAZA
-          std::cout << "MODO TRAZA" << std::endl;
-          std::cout << *this << std::endl;
-          std::cout << "Rotación DD en " << nodo << std::endl; 
-        #endif
+#ifdef TRAZA
+        std::cout << "Desbalanceo:";
+        std::cout << *this << std::endl;
+        std::cout<< "==========================";
+        std::cout << "\nRotación DD en [" << *nodo << "]:";
+#endif
         RotacionDD(nodo);
       } else {
-        #ifdef TRAZA
-          std::cout << "MODO TRAZA" << std::endl;
-          std::cout << *this << std::endl;
-          std::cout << "Rotación DI en " << nodo << std::endl; 
-        #endif
+#ifdef TRAZA
+        std::cout << "Desbalanceo:";
+        std::cout << *this << std::endl;
+        std::cout<< "==========================";
+        std::cout << "\nRotación DI en [" << *nodo << "]:";
+#endif
         RotacionDI(nodo);
       }
       crece = false;
   }
 }
 
-template<class Key>
-bool AVL<Key>::Insertar(const Key& k) {
-  NodoAVL<Key> aux{k};
-  NodoAVL<Key>* nuevo = &aux;
-  NodoAVL<Key>* aux2 =  reinterpret_cast<NodoAVL<Key>*>(this->raiz_);
-  bool crece{false};
-  std::cout << "Insertar: " << k << std::endl;
-  InsertaBal(aux2, nuevo, crece);
+template <class Key>
+void AVL<Key>::InsertaBal(NodoAVL<Key>*& nodo, NodoAVL<Key>* nuevo,
+                          bool& crece) {
+  if (nodo == NULL) {
+    nodo = nuevo;
+    crece = true;
+  } else if (nuevo->GetDato() < nodo->GetDato()) {
+    InsertaBal(reinterpret_cast<NodoAVL<Key>*&>(nodo->GetIzquierdo()), nuevo,
+               crece);
+    if (crece) {
+      InsertReBalanceaIzda(nodo, crece);
+    }
+  } else {
+    InsertaBal(reinterpret_cast<NodoAVL<Key>*&>(nodo->GetDerecho()), nuevo,
+               crece);
+    if (crece) {
+      InsertReBalanceaDcha(nodo, crece);
+    }
+  }
 }
 
-#endif        
+template <class Key>
+bool AVL<Key>::Insertar(const Key& k) {
+  NodoAVL<Key>* nuevo = new NodoAVL<Key>(k, 0);
+  bool crece{false};
+  std::cout << "Insertar: " << k << std::endl;
+  InsertaBal(reinterpret_cast<NodoAVL<Key>*&>(this->GetRaiz2()), nuevo, crece);
+  return true;
+}
+
+#endif
