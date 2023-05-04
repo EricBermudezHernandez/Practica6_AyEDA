@@ -171,7 +171,7 @@ void AVL<Key>::RotacionII(NodoAVL<Key>*& nodo) {
   nodo->GetIzquierdo() = nodo1->GetDerecho();
   // nodo1->dcho = nodo;
   nodo1->GetDerecho() = nodo;
-  if (nodo1->GetDato() == 1) {
+  if (nodo1->GetBal() == 1) {
     // nodo->bal = 0;
     nodo->SetBal(0);
     // nodo1->bal = 0;
@@ -214,11 +214,11 @@ void AVL<Key>::RotacionID(NodoAVL<Key>*& nodo) {
   // nodoAVL* nodo2 = nodo1->dcho;
   NodoAVL<Key>* nodo2 = reinterpret_cast<NodoAVL<Key>*>(nodo1->GetDerecho());
   // nodo->izdo = nodo2->dcho;
-  nodo->GetIzquierdo() = reinterpret_cast<NodoAVL<Key>*>(nodo2->GetDerecho());
+  nodo->GetIzquierdo() = nodo2->GetDerecho();
   // nodo2->dcho = nodo;
   nodo2->GetDerecho() = nodo;
   // nodo1->dcho = nodo2->izdo;
-  nodo1->GetDerecho() = reinterpret_cast<NodoAVL<Key>*>(nodo2->GetIzquierdo());
+  nodo1->GetDerecho() = nodo2->GetIzquierdo();
   // nodo2->izdo = nodo1;
   nodo2->GetIzquierdo() = nodo1;
   if (nodo2->GetBal() == -1) {
@@ -247,11 +247,11 @@ void AVL<Key>::RotacionDI(NodoAVL<Key>*& nodo) {
   // nodoAVL* nodo2 = nodo1->izdo;
   NodoAVL<Key>* nodo2 = reinterpret_cast<NodoAVL<Key>*>(nodo1->GetIzquierdo());
   // nodo->dcho = nodo2->izdo;
-  nodo->GetDerecho() = reinterpret_cast<NodoAVL<Key>*>(nodo2->GetIzquierdo());
+  nodo->GetDerecho() = nodo2->GetIzquierdo();
   // nodo2->izdo = nodo;
   nodo2->GetIzquierdo() = nodo;
   // nodo1->izdo = nodo2->dcho;
-  nodo1->GetIzquierdo() = reinterpret_cast<NodoAVL<Key>*>(nodo2->GetDerecho());
+  nodo1->GetIzquierdo() = nodo2->GetDerecho();
   // nodo2->dcho = nodo1;
   nodo2->GetDerecho() = nodo1;
   if (nodo2->GetBal() == 1) {
@@ -287,7 +287,7 @@ void AVL<Key>::InsertReBalanceaIzda(NodoAVL<Key>*& nodo, bool& crece) {
     }
     case 1: {
       NodoAVL<Key>* nodo1 =
-          reinterpret_cast<NodoAVL<Key>*>(nodo->GetIzquierdo());
+          reinterpret_cast<NodoAVL<Key>*&>(nodo->GetIzquierdo());
       if (nodo1->GetBal() == 1) {
 #ifdef TRAZA
         std::cout << "Desbalanceo:";
@@ -306,6 +306,7 @@ void AVL<Key>::InsertReBalanceaIzda(NodoAVL<Key>*& nodo, bool& crece) {
         RotacionID(nodo);
       }
       crece = false;
+      break;
     }
   }
 }
@@ -322,8 +323,8 @@ void AVL<Key>::InsertReBalanceaDcha(NodoAVL<Key>*& nodo, bool& crece) {
       nodo->SetBal(-1);
       break;
     }
-    case -1:
-      NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*>(nodo->GetDerecho());
+    case -1: {
+      NodoAVL<Key>* nodo1 = reinterpret_cast<NodoAVL<Key>*&>(nodo->GetDerecho());
       if (nodo1->GetBal() == -1) {
 #ifdef TRAZA
         std::cout << "Desbalanceo:";
@@ -342,6 +343,8 @@ void AVL<Key>::InsertReBalanceaDcha(NodoAVL<Key>*& nodo, bool& crece) {
         RotacionDI(nodo);
       }
       crece = false;
+      break;
+    }
   }
 }
 
@@ -371,7 +374,7 @@ bool AVL<Key>::Insertar(const Key& k) {
   NodoAVL<Key>* nuevo = new NodoAVL<Key>(k, 0);
   bool crece{false};
   std::cout << "Insertar: " << k << std::endl;
-  InsertaBal(reinterpret_cast<NodoAVL<Key>*&>(this->GetRaiz2()), nuevo, crece);
+  InsertaBal(reinterpret_cast<NodoAVL<Key>*&>(AB<Key>::GetRaiz2()), nuevo, crece);
   return true;
 }
 
