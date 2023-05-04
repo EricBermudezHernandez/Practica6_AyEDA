@@ -373,7 +373,7 @@ template <class Key>
 bool AVL<Key>::Insertar(const Key& k) {
   NodoAVL<Key>* nuevo = new NodoAVL<Key>(k, 0);
   bool crece{false};
-  std::cout << "Insertar: " << k << std::endl;
+  std::cout << "\nInsertar: " << k;
   InsertaBal(reinterpret_cast<NodoAVL<Key>*&>(AB<Key>::GetRaiz2()), nuevo, crece);
   return true;
 }
